@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./ProductList.css";
 import CartItem from "./CartItem";
 import { useDispatch, useSelector } from "react-redux";
@@ -295,12 +295,7 @@ function ProductList({ onHomeClick }) {
   };
 
   const handleAddToCart = (product) => {
-    dispatch(addItem(product)); // Dispatch the action to add the product to the cart (Redux action)
-    setAddedToCart((prevState) => ({
-      // Update the local state to reflect that the product has been added
-      ...prevState, // Spread the previous state to retain existing entries
-      [product.name]: true, // Set the current product's name as a key with value 'true' to mark it as added
-    }));
+    dispatch(addItem(product));
   };
 
   const calculateTotalQuantity = () => {
@@ -308,6 +303,20 @@ function ProductList({ onHomeClick }) {
       ? CartItems.reduce((total, item) => total + item.quantity, 0)
       : 0;
   };
+
+  useEffect(() => {
+    if(CartItems.length === 0){
+      setAddedToCart({});
+      return;
+    }
+    const newAddedToCart = {};
+    CartItems.forEach(item => {
+      if(item.quantity > 0){
+        newAddedToCart[item.name] = true;
+      }
+    });
+    setAddedToCart(newAddedToCart);
+  }, [CartItems]);  
 
   return (
     <div>
